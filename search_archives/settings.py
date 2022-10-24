@@ -10,7 +10,36 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
+
+import environ
+import os
+
+
+env = environ.Env() # To read the environment variable for DB settings
+
+# Read the secrets like DB's password and Django's secret key
+# TODO - Now the secrets are passed using environment variable, 
+# but pull the secrets from Hashicorp's Vault. 
+secrets = {}
+
+env_var_prefix = 'SEARCH_ARCHIVES_'
+environ = dict(os.environ)
+
+for env_var_key in environ:
+    
+    if env_var_key.startswith(env_var_prefix):
+        key = env_var_key.replace(env_var_prefix, '').lower()
+        secrets[key] = environ[env_var_key]        
+
+def get_secret(setting, secrets=secrets):
+    """Get secret setting or fail with ImproperlyConfigured"""
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ImproperlyConfigured("Set the {} setting".format(setting))
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +49,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_&*6&xlo+s=68l#34h$*z*e4u$2@0%xyl(gxoo!3-ni9*bn(vw'
+SECRET_KEY = get_secret('secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -75,11 +105,14 @@ WSGI_APPLICATION = 'search_archives.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env(env_var_prefix+'DB_NAME'),
+        'USER': env(env_var_prefix+'DB_USERNAME'),
+        'PASSWORD': get_secret('db_password'),
+        'HOST': env(env_var_prefix+'DB_HOST'),
+        'PORT': env(env_var_prefix+'DB_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
