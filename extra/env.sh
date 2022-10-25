@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export SEARCH_ARCHIVES_SECRET_KEY=django-secret
+export SEARCH_ARCHIVES_DB_NAME=search_archives
+export SEARCH_ARCHIVES_DB_HOST=127.0.0.1
+export SEARCH_ARCHIVES_DB_PORT=3306
+export SEARCH_ARCHIVES_DB_USERNAME=root
+export SEARCH_ARCHIVES_DB_PASSWORD=redhat19*
