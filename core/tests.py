@@ -66,7 +66,7 @@ class ServiceTests(TestCase):
     
     def test_seervice_pull_from_service(self):
         """
-        This test case is test the various asspect of the pull_from_service
+        This test case is test the various aspect of the pull_from_service
         """
         
         with self.assertRaises(InvalidArchiveIDException) as ex: 
@@ -88,7 +88,7 @@ class ServiceTests(TestCase):
         
     def test_service_import_archive(self):
         """
-        This test case is test the various asspect of the import_archive
+        This test case is test the various aspect of the import_archive
         """
         
         with self.assertRaises(InvalidArchiveIDException) as ex: 
@@ -113,3 +113,29 @@ class ServiceTests(TestCase):
         with self.assertRaises(ArchiveAlreadyExistsException) as ex: 
             services.import_archive(archive_id)
         self.assertEqual(str(ex.exception), f"Archive {archive_id} is already imported")
+
+
+class ArchiveManagerTests(TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.objects = Archive.objects
+    
+
+    def test_search_archive(self):
+        """
+        This test case to test the various aspect of search_archive method.
+        """
+        
+        
+        self.assertEqual(len(self.objects.search_archive(None)), 0, "Expected 0 results")
+        
+        
+        for archive_id in ["251cd289-2f0d-48fc-8018-032400b67a56",
+                          "C513156"]:
+            Archive.objects.create(archive_id=archive_id, title="title")
+        
+
+        self.assertEqual(len(self.objects.search_archive("C513156")), 1, "Expected 1 results")
+        
+        self.assertEqual(len(self.objects.search_archive(None)), 2, "Expected 2 results")

@@ -5,6 +5,7 @@
 #
 # This is part of search-archive and is released under
 
+import re
 import requests
 from django.db import OperationalError
 from django.db.utils import IntegrityError
@@ -15,6 +16,8 @@ from core.exceptions import (ArchiveAlreadyExistsException,
 from core.models import Archive
 
 base_url = "http://discovery.nationalarchives.gov.uk/API/records/v1/details/"
+
+TAG_RE = re.compile(r'<[^>]+>')
 
 def pull_from_service(archive_id: str) -> dict:
     """Pull the archive details from the National Archive 
@@ -39,8 +42,9 @@ def pull_from_service(archive_id: str) -> dict:
         json_reponse = reponse.json()
         return_value['archive_id'] = json_reponse.get('id', None)
         return_value['title'] = json_reponse.get('title', None)
-        return_value['scope_content_description'] = json_reponse.get('scopeContent', None) \
+        scope_content_description = json_reponse.get('scopeContent', None) \
                                                     and json_reponse['scopeContent'].get('description', None)
+        return_value['scope_content_description'] = scope_content_description and TAG_RE.sub('', scope_content_description)
         return_value['citable_reference'] = json_reponse.get('citableReference', None)
     
     return return_value

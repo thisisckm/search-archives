@@ -7,6 +7,25 @@
 
 
 from django.db import models
+from django.db.models.query import QuerySet
+
+class ArchiveManager(models.Manager):
+    
+    def search_archive(self, archive_id: str) -> QuerySet:
+        """Search the archive details. 
+        
+        If the archive_id is none or empty, then top 10 lastest archive records is return.
+        If the archive_id is not none or empty, then the search result is return.
+
+        Args:
+            archive_id (str): Valid archive id
+
+        Returns:
+            django.db.models.query.QuerySet:
+        """
+        if archive_id:
+            return Archive.objects.filter(archive_id=archive_id)
+        return Archive.objects.all().order_by('-id')[:10]
 
 
 class Archive(models.Model):
@@ -16,6 +35,8 @@ class Archive(models.Model):
     title = models.CharField(max_length=200, null=True)
     scope_content_description = models.CharField(max_length=200, null=True)
     citable_reference = models.CharField(max_length=200, null=True)
+    
+    objects = ArchiveManager()
 
     def save(self, *args, **kwargs):
         """The save method is overridden to apply the primary tasks of 

@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>
+            {% block title %}
+            {% endblock %}
+        </title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>        
+    </head>
+    <body>
+        {% block includes %}
+        <div>
+            <h1 class="h1">Search Archives</h1>
+        </div>
+        <div class="sa">
+            <div class="sa--wrapper">
+                <form class="sa--form" action="#" method="post">
+                    <div class="sa--input-wrapper">
+                        <input value="{{search_key}}" class="sa--input" name="search" type="text" placeholder="search">
+                    </div>
+                    <input class="sa--submit" type="submit" value="&#10140;"/>
+                </form>
+            </div>
+        </div>
+        {% for archive in archives %}
+        <div class="display-card">
+            <div class="display-container">
+                <h4>{{ archive.display }}</h4>
+                <table class="display-table">
+                    <tbody>
+                        <tr>
+                            <td>ID</td>
+                            <td>{{archive.archive_id|default_if_none:""}}</td>
+                        </tr>
+                        <tr>
+                            <td>Title</td>
+                            <td>{{archive.title|default_if_none:""}}</td>
+                        </tr>
+                        <tr>
+                            <td>Scope Description</td>
+                            <td>{{archive.scope_content_description|default_if_none:""}}</td>
+                        </tr>
+                        <tr>
+                            <td>Citable Reference</td>
+                            <td>{{archive.citable_reference|default_if_none:""}}</td>
+                        </tr>
+                    </tbody>
+                </table> 
+            </div>
+        </div>
+        {% empty %}
+        <p class="display-empty-record">No record found</p>
+        {% endfor %}
+        {% endblock includes %} 
+    </body>
+</html>
